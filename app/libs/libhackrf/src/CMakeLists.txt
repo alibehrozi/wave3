@@ -26,23 +26,10 @@
 set(c_sources ${CMAKE_CURRENT_SOURCE_DIR}/hackrf.c CACHE INTERNAL "List of C sources")
 set(c_headers ${CMAKE_CURRENT_SOURCE_DIR}/hackrf.h CACHE INTERNAL "List of C headers")
 
-# Dynamic library
-add_library(hackrf-gsg SHARED ${c_sources})
-set_target_properties(hackrf-gsg PROPERTIES VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.0 SOVERSION 0)
-
 # Static library
-add_library(hackrf-gsg-static STATIC ${c_sources})
-if(MSVC)
-    set_target_properties(hackrf-gsg-static PROPERTIES OUTPUT_NAME "hackrf-gsg_static")
-else()
-    set_target_properties(hackrf-gsg-static PROPERTIES OUTPUT_NAME "hackrf-gsg")
-endif()
+add_library(hackrf-gsg STATIC ${c_sources})
 
 set_target_properties(hackrf-gsg PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties(hackrf-gsg-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-
-# Dependencies
-target_link_libraries(hackrf-gsg ${LIBUSB_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 # For cygwin just force UNIX OFF and WIN32 ON
 if( ${CYGWIN} )
@@ -52,10 +39,6 @@ endif( ${CYGWIN} )
 
 if( ${UNIX} )
     install(TARGETS hackrf-gsg
-            LIBRARY DESTINATION lib${LIB_SUFFIX}
-            COMPONENT sharedlibs
-            )
-    install(TARGETS hackrf-gsg-static
             ARCHIVE DESTINATION lib${LIB_SUFFIX}
             COMPONENT staticlibs
             )
@@ -67,10 +50,6 @@ endif( ${UNIX} )
 
 if( ${WIN32} )
     install(TARGETS hackrf-gsg
-            DESTINATION bin
-            COMPONENT sharedlibs
-            )
-    install(TARGETS hackrf-gsg-static
             DESTINATION bin
             COMPONENT staticlibs
             )
