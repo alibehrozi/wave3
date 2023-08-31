@@ -6,6 +6,16 @@ PROJECT(hackrf)
 set(libusb usb)
 add_subdirectory(libs/libusb)
 
+# Include the libhackrf from greatscottgadgets
+set(libhackrf-gsg hackrf-gsg)
+add_subdirectory(libs/libhackrf)
+
+# Link libhackrf-gsg dependencies
+target_link_libraries(
+        ${libhackrf-gsg}
+        ${libusb}
+)
+
 # add library called libhackrf
 set(libhackrf hackrf)
 add_library(${libhackrf} SHARED
