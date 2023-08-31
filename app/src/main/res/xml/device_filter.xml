@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- hackrf-jawbreaker -->
+    <usb-device vendor-id="1d50" product-id="604b" protocol="2" />
+    <!-- hackrf-one -->
+    <usb-device vendor-id="1d50" product-id="6089" protocol="2" />
+    <!-- rad1o -->
+    <usb-device vendor-id="1d50" product-id="cc15" protocol="2" />
+    <!-- nxp-dfu -->
+    <usb-device vendor-id="1fc9" product-id="000c" protocol="2" />
+</resources>
