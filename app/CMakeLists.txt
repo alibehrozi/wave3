@@ -2,6 +2,10 @@
 cmake_minimum_required(VERSION 3.20)
 PROJECT(hackrf)
 
+# Include the libusb
+set(libusb usb)
+add_subdirectory(libs/libusb)
+
 # add library called libhackrf
 set(libhackrf hackrf)
 add_library(${libhackrf} SHARED
