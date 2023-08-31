@@ -2,6 +2,10 @@
 cmake_minimum_required(VERSION 3.20)
 PROJECT(hackrf)
 
+# Include the libfftw3 in single precision mode (libfftw3)
+set(libfftw3 fftw3f)
+add_subdirectory(libs/fftw-3.3.10)
+
 # add library called libhackrf
 set(libhackrf hackrf)
 add_library(${libhackrf} SHARED
