@@ -493,10 +493,19 @@ extern "C" {
 
 int ADDCALL hackrf_init(void)
 {
-	int libusb_error;
+	int libusb_error = 0;
 	if (g_libusb_context != NULL) {
 		return HACKRF_SUCCESS;
 	}
+
+#ifdef ANDROID
+    // LibUSB does not support device discovery on android
+    libusb_error = libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
+    if (libusb_error != LIBUSB_SUCCESS) {
+        last_libusb_error = libusb_error;
+        return HACKRF_ERROR_LIBUSB;
+    }
+#endif
 
 	libusb_error = libusb_init(&g_libusb_context);
 	if (libusb_error != 0) {
@@ -832,6 +841,41 @@ int ADDCALL hackrf_open_by_serial(
 	}
 
 	return hackrf_open_setup(usb_device, device);
+}
+
+int ADDCALL hackrf_open_by_file_descriptor(
+        int desired_file_descriptor,
+        hackrf_device **device) {
+#ifndef _WIN32
+	libusb_device_handle* usb_device;
+	int libusb_error;
+
+    if (desired_file_descriptor < 0) {
+        return HACKRF_ERROR_INVALID_PARAM;
+    }
+
+    if (device == NULL) {
+        return HACKRF_ERROR_INVALID_PARAM;
+    }
+
+    libusb_error = libusb_wrap_sys_device(
+            g_libusb_context,
+            (intptr_t) desired_file_descriptor,
+            &usb_device);
+
+    if (libusb_error != LIBUSB_SUCCESS) {
+        last_libusb_error = libusb_error;
+        return HACKRF_ERROR_LIBUSB;
+    }
+
+	if (usb_device == NULL) {
+        return HACKRF_ERROR_NOT_FOUND;
+    }
+
+    return hackrf_open_setup(usb_device, device);
+#else
+    return HACKRF_ERROR_UNSUPPORTED;
+#endif
 }
 
 int ADDCALL hackrf_device_list_open(
@@ -2141,6 +2185,9 @@ const char* ADDCALL hackrf_error_name(enum hackrf_error errcode)
 
 	case HACKRF_ERROR_NO_MEM:
 		return "insufficient memory";
+
+	case HACKRF_ERROR_UNSUPPORTED:
+		return "operation not supported by the device";
 
 	case HACKRF_ERROR_LIBUSB:
 #if defined(LIBUSB_API_VERSION) && (LIBUSB_API_VERSION >= 0x01000103)
